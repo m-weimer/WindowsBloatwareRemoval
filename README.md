@@ -53,7 +53,7 @@ A comprehensive PowerShell script for detecting and removing bloatware from Wind
 
 1. **Download the script**
    ```powershell
-   # Save as bloatware-removal.ps1
+   # Save as win10_11_remove_bloatware.ps1
    ```
 
 2. **Set execution policy** (if needed)
@@ -63,14 +63,14 @@ A comprehensive PowerShell script for detecting and removing bloatware from Wind
 
 3. **Run the script**
    ```powershell
-   .\bloatware-removal.ps1
+   .\win10_11_remove_bloatware.ps1
    ```
 
 ### Usage Modes
 
 #### Interactive Mode (Default)
 ```powershell
-.\bloatware-removal.ps1
+.\win10_11_remove_bloatware.ps1
 ```
 - Scans system for bloatware
 - Displays organized results by category
@@ -84,7 +84,7 @@ A comprehensive PowerShell script for detecting and removing bloatware from Wind
 
 #### Scan Only Mode
 ```powershell
-.\bloatware-removal.ps1 -ScanOnly
+.\win10_11_remove_bloatware.ps1 -ScanOnly
 ```
 - Performs detection scan only
 - No removal operations
@@ -92,7 +92,7 @@ A comprehensive PowerShell script for detecting and removing bloatware from Wind
 
 #### Auto-Remove Mode
 ```powershell
-.\bloatware-removal.ps1 -RemoveAll
+.\win10_11_remove_bloatware.ps1 -RemoveAll
 ```
 - Automatically removes all detected bloatware
 - No user interaction required
@@ -181,7 +181,7 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 ### Script Won't Run
 ```powershell
 # Alternative bypass method
-PowerShell.exe -ExecutionPolicy Bypass -File ".\bloatware-removal.ps1"
+PowerShell.exe -ExecutionPolicy Bypass -File ".\win10_11_remove_bloatware.ps1"
 ```
 
 ## 📈 Use Cases
