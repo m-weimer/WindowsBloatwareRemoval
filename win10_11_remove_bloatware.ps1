@@ -92,6 +92,14 @@ $BloatwarePatterns = @(
     "*cyberlink*"
 )
 
+# Apps that are system-level and typically can't be removed via PowerShell
+$SystemLevelApps = @(
+    "Microsoft.Windows.PeopleExperienceHost",
+    "Microsoft.XboxGameCallableUI",
+    "Microsoft.WindowsStore", 
+    "Microsoft.Windows.Cortana"
+)
+
 # Comprehensive specific apps list for Windows 10 and 11
 $SpecificApps = @(
     # Microsoft Core Bloatware
@@ -247,6 +255,7 @@ function Scan-Bloatware {
                         DisplayName = $app.PackageFullName
                         Pattern = $pattern
                         Category = Get-AppCategory -AppName $app.Name
+                        SystemLevel = $SystemLevelApps -contains $app.Name
                     }
                     $AllFoundApps += $app.Name
                 }
@@ -264,6 +273,7 @@ function Scan-Bloatware {
                 DisplayName = $app.PackageFullName
                 Pattern = "Specific Check"
                 Category = Get-AppCategory -AppName $app.Name
+                SystemLevel = $SystemLevelApps -contains $app.Name
             }
             $AllFoundApps += $app.Name
         }
@@ -283,7 +293,13 @@ function Scan-Bloatware {
         foreach ($group in $GroupedApps) {
             Write-Host "`n$($group.Name.ToUpper()) ($($group.Count) apps):" -ForegroundColor Magenta
             Write-Host ("-" * 40)
-            $group.Group | ForEach-Object { Write-Host "  - $($_.Name)" -ForegroundColor White }
+            $group.Group | ForEach-Object { 
+                if ($_.SystemLevel) {
+                    Write-Host "  - $($_.Name) (requires special removal)" -ForegroundColor Yellow
+                } else {
+                    Write-Host "  - $($_.Name)" -ForegroundColor White
+                }
+            }
         }
         
         Write-Host "`nTOTAL: Found $($InstalledBloatware.Count) bloatware apps" -ForegroundColor Red
@@ -345,9 +361,13 @@ function Show-SelectiveRemoval {
     $GroupedApps = $FoundApps | Group-Object Category | Sort-Object Name
     
     foreach ($group in $GroupedApps) {
-        Write-Host "$($group.Name.ToUpper()):" -ForegroundColor Magenta
+        Write-Host "  [$index] $($group.Name.ToUpper()):" -ForegroundColor Magenta
         foreach ($app in $group.Group) {
-            Write-Host "  [$index] $($app.Name)" -ForegroundColor White
+            if ($app.SystemLevel) {
+                Write-Host "    [$index] $($app.Name) (requires special removal)" -ForegroundColor Yellow
+            } else {
+                Write-Host "    [$index] $($app.Name)" -ForegroundColor White
+            }
             $appList[$index] = $app.Name
             $index++
         }
@@ -445,6 +465,12 @@ function Remove-Bloatware {
     
     foreach ($AppName in $AppsToRemove) {
         Write-Host "Removing: $AppName" -ForegroundColor Cyan
+        
+        # Check if this is a known system-level app
+        if ($SystemLevelApps -contains $AppName) {
+            Write-Host "  ⚠ Skipping system-level app (requires special removal): $AppName" -ForegroundColor Yellow
+            continue
+        }
         
         try {
             # Remove for current user
