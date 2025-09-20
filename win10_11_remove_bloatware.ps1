@@ -215,9 +215,19 @@ function Scan-Bloatware {
     Write-Host "Scanning for Windows 10/11 Bloatware..." -ForegroundColor Yellow
     Write-Host "=" * 60
     
-    # Get Windows version
-    $WindowsVersion = (Get-ItemProperty "HKLM:SOFTWARE\Microsoft\Windows NT\CurrentVersion").ProductName
-    Write-Host "Detected OS: $WindowsVersion" -ForegroundColor Cyan
+    # Get Windows version with better Windows 11 detection
+    $regInfo = Get-ItemProperty "HKLM:SOFTWARE\Microsoft\Windows NT\CurrentVersion"
+    $buildNumber = $regInfo.CurrentBuildNumber
+    $productName = $regInfo.ProductName
+    
+    # Windows 11 detection: Build 22000 and higher
+    if ([int]$buildNumber -ge 22000) {
+        $WindowsVersion = $productName -replace "Windows 10", "Windows 11"
+    } else {
+        $WindowsVersion = $productName
+    }
+    
+    Write-Host "Detected OS: $WindowsVersion (Build $buildNumber)" -ForegroundColor Cyan
     Write-Host ""
     
     # Create arrays to store results
